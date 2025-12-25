@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 2025-12-25-003-add-payment-amount-check
+      id: 2025-12-25-003-add-checks
       author: you
       changes:
         - sql:

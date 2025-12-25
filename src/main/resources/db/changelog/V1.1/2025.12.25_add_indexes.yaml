@@ -26,7 +26,6 @@ databaseChangeLog:
             columns:
               - column: { name: timestamp }
 
-        # Частый кейс: платежи пользователя по статусу в порядке времени
         - createIndex:
             tableName: payments
             indexName: idx_payments_user_status_timestamp

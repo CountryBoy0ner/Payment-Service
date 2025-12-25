@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 2025-12-25-001-create-payments
+      id: 2025-12-25-001-create-payments-table
       author: you
       changes:
         - createTable:
@@ -8,37 +8,42 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: uuid
+                  type: BIGSERIAL
                   constraints:
-                    primaryKey: true
                     nullable: false
 
               - column:
                   name: order_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
 
               - column:
                   name: user_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
 
               - column:
                   name: status
-                  type: varchar(32)
+                  type: VARCHAR(32)
                   constraints:
                     nullable: false
 
               - column:
                   name: timestamp
-                  type: timestamptz
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
 
               - column:
                   name: payment_amount
-                  type: numeric(19,2)
+                  type: NUMERIC(19,2)
                   constraints:
                     nullable: false
+
+        - addPrimaryKey:
+            tableName: payments
+            columnNames: id
+            constraintName: pk_payments
