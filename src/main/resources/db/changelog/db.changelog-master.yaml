@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - includeAll:
+      path: V1.0
+      relativeToChangelogFile: true
+  - includeAll:
+      path: V1.1
+      relativeToChangelogFile: true

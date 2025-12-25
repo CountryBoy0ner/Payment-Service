@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025-12-25-002-add-payments-indexes
+      author: payment-service
+      changes:
+
+        - createIndex:
+            tableName: payments
+            indexName: ux_payments_order_id
+            unique: true
+            columns:
+              - column:
+                  name: order_id
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_user_id
+            columns:
+              - column:
+                  name: user_id
+
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_user_status_timestamp
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: status
+              - column:
+                  name: timestamp
