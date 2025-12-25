@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 2025-12-25-001-create-payments
-      author: payment-service
+      author: you
       changes:
         - createTable:
             tableName: payments

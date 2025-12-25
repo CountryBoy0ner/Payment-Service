@@ -1,32 +1,36 @@
 databaseChangeLog:
   - changeSet:
       id: 2025-12-25-002-add-payments-indexes
-      author: payment-service
+      author: you
       changes:
-
-        - createIndex:
+        - addUniqueConstraint:
             tableName: payments
-            indexName: ux_payments_order_id
-            unique: true
-            columns:
-              - column:
-                  name: order_id
+            columnNames: order_id
+            constraintName: uk_payments_order_id
 
         - createIndex:
             tableName: payments
             indexName: idx_payments_user_id
             columns:
-              - column:
-                  name: user_id
+              - column: { name: user_id }
 
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_status
+            columns:
+              - column: { name: status }
 
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_timestamp
+            columns:
+              - column: { name: timestamp }
+
+        # Частый кейс: платежи пользователя по статусу в порядке времени
         - createIndex:
             tableName: payments
             indexName: idx_payments_user_status_timestamp
             columns:
-              - column:
-                  name: user_id
-              - column:
-                  name: status
-              - column:
-                  name: timestamp
+              - column: { name: user_id }
+              - column: { name: status }
+              - column: { name: timestamp }

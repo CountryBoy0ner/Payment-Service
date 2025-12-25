@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025-12-25-003-add-payment-amount-check
+      author: you
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: >
+              ALTER TABLE payments
+              ADD CONSTRAINT chk_payments_amount_positive
+              CHECK (payment_amount > 0);
+      rollback:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: >
+              ALTER TABLE payments
+              DROP CONSTRAINT IF EXISTS chk_payments_amount_positive;
