@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // identity/bigint
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "order_id", nullable = false)
@@ -21,11 +21,13 @@ public class Payment {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
-    private String status;
+    private PaymentStatus status;
 
     @Column(nullable = false)
     private OffsetDateTime timestamp;
 
     @Column(name = "payment_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal paymentAmount;
+}

@@ -1,6 +1,8 @@
 package com.innowise.dto;
 
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -8,9 +10,16 @@ import java.time.OffsetDateTime;
 
 @Data
 public class CreatePaymentRequest {
+
+    @NotNull
     public Long orderId;
+
+    @NotNull
     public Long userId;
-    public String status;           // например: NEW / PAID / FAILED
-    public OffsetDateTime timestamp; // optional
+
+    @NotNull
+    @DecimalMin(value = "0.01", inclusive = true)
     public BigDecimal paymentAmount;
+
+    public OffsetDateTime timestamp;
 }

@@ -1,45 +1,95 @@
-services:
-  payment-db:
-    image: postgres:16
-    container_name: payment-db
-    environment:
-      POSTGRES_DB: payment_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - payment_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_db"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    networks: [ innowise-net ]
+version: "3.8"
 
-  payment-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: payment-service
+services:
+  order-service-db:
+    image: postgres:16-alpine
+    container_name: order-service-db
+    restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: 8085
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-      SPRING_LIQUIBASE_ENABLED: "true"
-      SPRING_LIQUIBASE_CHANGE_LOG: classpath:db/changelog/db.changelog-master.yaml
+      POSTGRES_DB: orders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
     ports:
-      - "8085:8085"
+      - "5434:5432"
+    volumes:
+      - order_pgdata:/var/lib/postgresql/data
+    networks:
+      - innowise-micro-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - innowise-micro-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    restart: unless-stopped
     depends_on:
-      payment-db:
-        condition: service_healthy
-    networks: [ innowise-net ]
+      - zookeeper
+    ports:
+      # Для приложений внутри docker-сети: kafka:9092
+      - "9092:9092"
+      # Для подключения с хоста (Postman/IDE и т.п.)
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    networks:
+      - innowise-micro-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    ports:
+      - "8089:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - innowise-micro-net
+
+  order-service:
+    build: .
+    image: order-service:latest
+    container_name: order-service
+    depends_on:
+      - order-service-db
+      - kafka
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+    environment:
+      USER_SERVICE_BASE_URL: "http://user-service:8080/api/users"
+      # Важно: внутри docker-сети bootstrap = kafka:9092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+    networks:
+      - innowise-micro-net
 
 volumes:
-  payment_db_data:
+  order_pgdata:
 
 networks:
-  innowise-net:
+  innowise-micro-net:
     external: true

@@ -1,6 +1,8 @@
 package com.innowise.dto;
 
 
+
+import com.innowise.model.PaymentStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -11,7 +13,7 @@ public class PaymentDto {
     public Long id;
     public Long orderId;
     public Long userId;
-    public String status;
+    public PaymentStatus status;
     public OffsetDateTime timestamp;
     public BigDecimal paymentAmount;
 }
