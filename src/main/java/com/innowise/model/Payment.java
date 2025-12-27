@@ -1,33 +1,32 @@
 package com.innowise.model;
 
-import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Data
-@Entity
-@Table(name = "payments")
+@Document(collection = "payments")
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // Mongo _id -> String (ObjectId as hex)
 
-    @Column(name = "order_id", nullable = false)
+    @Field("order_id")
     private Long orderId;
 
-    @Column(name = "user_id", nullable = false)
+    @Field("user_id")
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
+    @Field("status")
     private PaymentStatus status;
 
-    @Column(nullable = false)
+    @Field("timestamp")
     private OffsetDateTime timestamp;
 
-    @Column(name = "payment_amount", nullable = false, precision = 19, scale = 2)
+    @Field("payment_amount")
     private BigDecimal paymentAmount;
 }

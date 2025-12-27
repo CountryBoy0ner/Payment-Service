@@ -14,4 +14,10 @@ public class CreateOrderEvent {
     private String status;
     private LocalDateTime createdAt;
     private BigDecimal totalAmount;
+
+    public CreateOrderEvent(long l, long l1, String created) {
+        this.orderId = l;
+        this.userId = l1;
+        this.status = created;
+    }
 }

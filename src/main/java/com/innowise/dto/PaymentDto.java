@@ -1,7 +1,5 @@
 package com.innowise.dto;
 
-
-
 import com.innowise.model.PaymentStatus;
 import lombok.Data;
 
@@ -10,7 +8,7 @@ import java.time.OffsetDateTime;
 
 @Data
 public class PaymentDto {
-    public Long id;
+    public String id;          // <-- было Long
     public Long orderId;
     public Long userId;
     public PaymentStatus status;
