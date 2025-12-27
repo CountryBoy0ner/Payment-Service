@@ -3,13 +3,13 @@ name: Payment Service CI/CD
 on:
   pull_request:
     paths:
-      - "Payment-Service/**"
+      - "**"
       - ".github/workflows/payment-ci.yml"
 
   push:
     branches: ["main", "develop"]
     paths:
-      - "Payment-Service/**"
+      - "**"
       - ".github/workflows/payment-ci.yml"
 
   workflow_dispatch:
@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVICE_DIR: Payment-Service
+  SERVICE_DIR: .
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-payment-service
 
 jobs:
@@ -38,7 +38,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      # Поставь 17, если у тебя проект на 17. Если не уверен — оставь 21 и смотри вывод ниже.
+      - name: Debug repo structure
+        run: |
+          pwd
+          ls -la
+
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
@@ -46,26 +50,25 @@ jobs:
           java-version: "21"
           cache: maven
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Show Java & Maven versions
         run: |
           java -version
           ./mvnw -v
 
-      - name: Make mvnw executable
-        run: chmod +x mvnw
-
       - name: Build + Unit tests + Integration tests (Testcontainers)
         run: ./mvnw -B -ntp verify
 
-      # Очень полезно: если тесты упали — ты увидишь репорты в артефактах
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: payment-test-reports
           path: |
-            ${{ env.SERVICE_DIR }}/target/surefire-reports/**
-            ${{ env.SERVICE_DIR }}/target/failsafe-reports/**
+            target/surefire-reports/**
+            target/failsafe-reports/**
 
   docker-build-pr:
     name: Docker build (PR only, no push)
@@ -83,8 +86,8 @@ jobs:
       - name: Build image (no push)
         uses: docker/build-push-action@v6
         with:
-          context: ./${{ env.SERVICE_DIR }}
-          file: ./${{ env.SERVICE_DIR }}/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -122,8 +125,8 @@ jobs:
       - name: Build & push image
         uses: docker/build-push-action@v6
         with:
-          context: ./${{ env.SERVICE_DIR }}
-          file: ./${{ env.SERVICE_DIR }}/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
