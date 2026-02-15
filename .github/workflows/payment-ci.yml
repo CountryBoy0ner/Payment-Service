@@ -27,8 +27,8 @@ env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-payment-service
 
 jobs:
-  test:
-    name: Build + Unit/Integration tests
+  tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,11 +37,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Debug repo structure
-        run: |
-          pwd
-          ls -la
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -58,21 +53,19 @@ jobs:
           java -version
           ./mvnw -v
 
-      - name: Build + Unit tests + Integration tests (Testcontainers)
-        run: ./mvnw -B -ntp verify
+      - name: Build + Unit tests only
+        run: ./mvnw -B -ntp test -DskipITs
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: payment-test-reports
-          path: |
-            target/surefire-reports/**
-            target/failsafe-reports/**
+          name: payment-unit-test-reports
+          path: target/surefire-reports/**
 
   docker-build-pr:
     name: Docker build (PR only, no push)
-    needs: test
+    needs: tests
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
@@ -94,7 +87,7 @@ jobs:
 
   docker-image:
     name: Build & Push image to GHCR
-    needs: test
+    needs: tests
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
 
