@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface PaymentRepository extends MongoRepository<Payment, String>, PaymentRepositoryCustom {
 
-    boolean existsByOrderId(Long orderId);
+    boolean existsByOrderIdAndUserId(Long orderId, Long userId);
+
+    Payment findByOrderIdAndUserId(Long orderId, Long userId);
 
     List<Payment> findByOrderId(Long orderId);
 

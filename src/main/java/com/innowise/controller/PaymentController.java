@@ -6,6 +6,7 @@ import com.innowise.model.PaymentStatus;
 import com.innowise.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -22,6 +23,9 @@ public class PaymentController {
         this.service = service;
     }
 
+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public PaymentDto create(@Valid @RequestBody CreatePaymentRequest req) {
         return service.create(req);
@@ -32,15 +36,18 @@ public class PaymentController {
         return service.getByOrderId(orderId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/by-user/{userId}")
     public List<PaymentDto> byUser(@PathVariable Long userId) {
         return service.getByUserId(userId);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/by-status")
     public List<PaymentDto> byStatus(@RequestParam List<PaymentStatus> statuses) {
         return service.getByStatuses(statuses);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/total")
     public BigDecimal total(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime from,
@@ -48,4 +55,12 @@ public class PaymentController {
     ) {
         return service.totalSum(from, to);
     }
+
+    @GetMapping("/me")
+    public List<PaymentDto> getMyPayments(
+            @RequestHeader("X-User-Id") Long currentUserId
+    ) {
+        return service.getByUserId(currentUserId);
+    }
+
 }

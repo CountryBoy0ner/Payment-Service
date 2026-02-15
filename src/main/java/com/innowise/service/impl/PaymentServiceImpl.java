@@ -2,6 +2,7 @@ package com.innowise.service.impl;
 
 import com.innowise.dto.CreatePaymentRequest;
 import com.innowise.dto.PaymentDto;
+import com.innowise.exception.PaymentAlreadyExistsException;
 import com.innowise.integration.RandomNumberClient;
 import com.innowise.kafka.event.CreatePaymentEvent;
 import com.innowise.kafka.producer.PaymentEventProducer;
@@ -10,9 +11,9 @@ import com.innowise.model.Payment;
 import com.innowise.model.PaymentStatus;
 import com.innowise.repository.PaymentRepository;
 import com.innowise.service.PaymentService;
+import com.mongodb.DuplicateKeyException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

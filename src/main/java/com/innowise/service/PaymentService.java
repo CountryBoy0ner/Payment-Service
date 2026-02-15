@@ -14,4 +14,5 @@ public interface PaymentService {
     List<PaymentDto> getByUserId(Long userId);
     List<PaymentDto> getByStatuses(List<PaymentStatus> statuses);
     BigDecimal totalSum(OffsetDateTime from, OffsetDateTime to);
+
 }

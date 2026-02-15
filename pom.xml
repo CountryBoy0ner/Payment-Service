@@ -129,11 +129,16 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Kafka test utils (только утилиты, НЕ EmbeddedKafka) -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
 
