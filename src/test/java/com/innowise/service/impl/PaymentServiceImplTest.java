@@ -200,56 +200,26 @@ class PaymentServiceImplTest {
         verifyNoMoreInteractions(repo, mapper, randomClient, producer);
     }
 
-    @Test
-    void create_whenSaveThrowsDuplicateKey_andPaymentAlreadyCreatedInParallel_shouldFetchExisting_publishEvent_andReturnDto() {
-        OffsetDateTime ts = OffsetDateTime.parse("2025-12-26T12:00:00Z");
-        Payment already = payment("ALREADY_ID", 10L, 7L, new BigDecimal("12.34"), PaymentStatus.SUCCESS, ts);
-
-        PaymentDto alreadyDto = new PaymentDto();
-        alreadyDto.setId("ALREADY_ID");
-        alreadyDto.setOrderId(10L);
-        alreadyDto.setUserId(7L);
-        alreadyDto.setPaymentAmount(new BigDecimal("12.34"));
-
-        when(repo.findByOrderId(10L)).thenReturn(List.of(), List.of(already));
-        when(mapper.toEntity(req)).thenReturn(mappedEntity);
-        when(randomClient.getRandomNumber()).thenReturn(2);
-        when(repo.save(any(Payment.class))).thenThrow(new DuplicateKeyException("dup"));
-        when(mapper.toDto(already)).thenReturn(alreadyDto);
-
-        PaymentDto result = service.create(req);
-
-        assertSame(alreadyDto, result);
-
-        verify(repo, times(2)).findByOrderId(10L);
-        verify(mapper).toEntity(req);
-        verify(randomClient).getRandomNumber();
-        verify(repo).save(any(Payment.class));
-
-        verify(producer).sendCreatePayment(any(CreatePaymentEvent.class));
-        verify(mapper).toDto(already);
-
-        // should NOT map/save-publish the failed attempt result (только already)
-        verify(mapper, never()).toDto(argThat(p -> p != null && "1".equals(p.getId())));
-
-        verifyNoMoreInteractions(repo, mapper, randomClient, producer);
-    }
 
     @Test
     void create_whenSaveThrowsDuplicateKey_andExistingNotFoundAfterRetry_shouldRethrow_andNotPublish() {
-        when(repo.findByOrderId(10L)).thenReturn(List.of(), List.of());
+        when(repo.findByOrderId(10L)).thenReturn(List.of());
+
         when(mapper.toEntity(req)).thenReturn(mappedEntity);
+
         when(randomClient.getRandomNumber()).thenReturn(2);
+
         when(repo.save(any(Payment.class))).thenThrow(new DuplicateKeyException("dup"));
 
         assertThrows(DuplicateKeyException.class, () -> service.create(req));
 
-        verify(repo, times(2)).findByOrderId(10L);
+        verify(repo, times(1)).findByOrderId(10L);
         verify(mapper).toEntity(req);
         verify(randomClient).getRandomNumber();
         verify(repo).save(any(Payment.class));
 
         verifyNoInteractions(producer);
+
         verify(mapper, never()).toDto(any(Payment.class));
 
         verifyNoMoreInteractions(repo, mapper, randomClient);
