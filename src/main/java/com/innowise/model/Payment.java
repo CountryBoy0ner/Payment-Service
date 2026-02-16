@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 public class Payment {
 
     @Id
-    private String id; // Mongo _id -> String (ObjectId as hex)
+    private String id;
 
     @Field("order_id")
     private Long orderId;

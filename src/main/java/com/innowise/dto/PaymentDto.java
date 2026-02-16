@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 
 @Data
 public class PaymentDto {
-    public String id;          // <-- было Long
+    public String id;
     public Long orderId;
     public Long userId;
     public PaymentStatus status;
