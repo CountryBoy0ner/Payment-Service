@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025-12-25-002-add-payments-indexes
+      author: you
+      changes:
+        - addUniqueConstraint:
+            tableName: payments
+            columnNames: order_id
+            constraintName: uk_payments_order_id
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_user_id
+            columns:
+              - column: { name: user_id }
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_status
+            columns:
+              - column: { name: status }
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_timestamp
+            columns:
+              - column: { name: timestamp }
+
+        - createIndex:
+            tableName: payments
+            indexName: idx_payments_user_status_timestamp
+            columns:
+              - column: { name: user_id }
+              - column: { name: status }
+              - column: { name: timestamp }
